@@ -51,12 +51,23 @@ def show_article(event):
             image_url = line.replace("[圖片]:", "").strip()
             try:
                 response = requests.get(image_url, timeout=5)
-                image_data = Image.open(BytesIO(response.content))
-                image_data.thumbnail((700, 700))
-                photo = ImageTk.PhotoImage(image_data)
-                text_widget.image_create(tk.END, image=photo)
-                text_widget.insert(tk.END, "\n")
-                image_refs.append(photo)  # 儲存引用防止被回收
+                image_data = Image.open(BytesIO(response.content)).convert("RGBA")
+
+                # 設定統一寬度
+                fixed_width = 700
+                w, h = image_data.size
+                if w > 0 and h > 0:
+                    ratio = fixed_width / w
+                    new_width = fixed_width
+                    new_height = int(h * ratio)
+                    image_data = image_data.resize((new_width, new_height), Image.LANCZOS)
+
+                    photo = ImageTk.PhotoImage(image_data)
+                    text_widget.image_create(tk.END, image=photo)
+                    text_widget.insert(tk.END, "\n")
+                    image_refs.append(photo)  # 避免被垃圾回收
+                else:
+                    text_widget.insert(tk.END, f"[圖片尺寸錯誤]: {image_url}\n")
             except Exception as e:
                 text_widget.insert(tk.END, f"[無法載入圖片]: {image_url}\n")
         elif line.startswith("[YouTube影片]:"):
@@ -70,7 +81,7 @@ def show_article(event):
 
     text_widget.config(state=tk.DISABLED)
     popup.image_refs = image_refs  # 綁定到 popup 防止 GC
-    
+
 def load_articles():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
