@@ -15,7 +15,7 @@ class LauncherApp:
 
         self.root = tk.Tk()
         self.root.title("🚀 HoYoLAB 啟動器")
-        self.root.geometry("400x260")
+        self.root.geometry("400x350")
         self.root.configure(bg="#f5f5f5")
 
         self.label = tk.Label(

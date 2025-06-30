@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from bs4 import BeautifulSoup
+import webbrowser
 
 
 class HoYoLabScraper:
@@ -23,6 +24,13 @@ class HoYoLabScraper:
             options.add_argument("--disable-blink-features=AutomationControlled")
             self.driver = webdriver.Chrome(options=options)
             self.driver.get(URL)
+
+    # 加在類別裡面
+    def open_website(self):
+        try:
+            webbrowser.open(URL)
+        except Exception as e:
+            print(f"[錯誤] 無法開啟瀏覽器: {e}")
 
     def get_article_timestamp(self, url):
         if self.driver is None:
